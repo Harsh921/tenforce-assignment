@@ -103,7 +103,7 @@ namespace Test_Taste_Console_Application.Domain.Services
         {
             //The function works the same way as the PrintAllPlanetsAndTheirMoonsToConsole function. You can find more comments there.
             var moons = _moonService.GetAllMoons().ToArray();
-            
+
             if (!moons.Any())
             {
                 Console.WriteLine(OutputString.NoMoonsFound);
@@ -131,7 +131,7 @@ namespace Test_Taste_Console_Application.Domain.Services
 
             ConsoleWriter.CreateLine(columnSizesForMoons);
             ConsoleWriter.CreateEmptyLines(2);
-            
+
             /*
                 This is an example of the output for the moon around the earth:
                 --------------------+--------------------+------------------------------+--------------------
@@ -162,9 +162,9 @@ namespace Test_Taste_Console_Application.Domain.Services
 
             ConsoleWriter.CreateHeader(columnLabels, columnSizes);
 
-            foreach(Planet planet in planets)
+            foreach (Planet planet in planets)
             {
-                if(planet.HasMoons())
+                if (planet.HasMoons())
                 {
                     ConsoleWriter.CreateText(new string[] { $"{planet.Id}", $"{planet.AverageMoonGravity}" }, columnSizes);
                 }
@@ -176,7 +176,7 @@ namespace Test_Taste_Console_Application.Domain.Services
 
             ConsoleWriter.CreateLine(columnSizes);
             ConsoleWriter.CreateEmptyLines(2);
-            
+
             /*
                 --------------------+--------------------------------------------------
                 Planet's Number     |Planet's Average Moon Gravity
@@ -185,5 +185,85 @@ namespace Test_Taste_Console_Application.Domain.Services
                 --------------------+--------------------------------------------------
             */
         }
+
+        // Outputs the average temperature of moons for each planet to the console.
+        public void OutputPlanetsWithMoonAvgTemperatureToConsole()
+        {
+            Console.WriteLine("Loading planets and their moons' average temperatures...");
+
+            // Retrieve all planets using the planet service and convert the result to a list for easier manipulation.
+            var planets = _planetService.GetAllPlanets().ToList();
+
+            // If no planets are found, display a message and exit the method.
+            if (!planets.Any())
+            {
+                Console.WriteLine(OutputString.NoPlanetsFound);
+                return;
+            }
+
+            // Define the sizes for the columns to be displayed in the console output.
+            var columnSizes = new[] { 20, 30 };
+            // Define the labels for the table columns: Planet Id and Moon Average Temperature.
+            var columnLabels = new[]
+            {
+                OutputString.PlanetId, OutputString.MoonAvgTemp
+            };
+
+            // Remove planets that do not have any moons, since we're only interested in planets with moons.
+            planets.RemoveAll(p => p.Moons == null || p.Moons.Count == 0);
+
+            // If no planets with moons are left after filtering, display a message and exit the method.
+            if (!planets.Any())
+            {
+                Console.WriteLine(OutputString.NoPlanetsFoundWithMoon);
+                return;
+            }
+
+            // Create and print the table header based on column labels and sizes.
+            ConsoleWriter.CreateHeader(columnLabels, columnSizes);
+
+            // Iterate through each planet that has moons.
+            foreach (var planet in planets)
+            {
+                if (planet.Moons != null && planet.Moons.Any())
+                {
+                    // Collect all average temperatures of the moons that have a temperature value.
+                    var moonTemperatures = planet.Moons
+                                                 .Where(m => m.AvgTemp.HasValue)
+                                                 .Select(m => m.AvgTemp.Value)
+                                                 .ToList();
+
+                    if (moonTemperatures.Any())
+                    {
+                        // If there are valid temperatures, calculate the average temperature.
+                        var averageTemp = moonTemperatures.Average();
+
+                        // Output the planet ID and the calculated average moon temperature.
+                        ConsoleWriter.CreateText(new string[] { $"{planet.Id}", $"{averageTemp}" }, columnSizes);
+                    }
+                    else
+                    {
+                        // If no moon temperatures are available, output the planet ID and a placeholder (e.g., "-").
+                        ConsoleWriter.CreateText(new string[] { $"{planet.Id}", $"-" }, columnSizes);
+                    }
+                }
+            }
+
+            // Draw a line at the end of the table for visual separation.
+            ConsoleWriter.CreateLine(columnSizes);
+
+            // Add two empty lines for spacing after the output.
+            ConsoleWriter.CreateEmptyLines(2);
+
+            /*
+               Example Output:
+               --------------------+--------------------------------------------------
+               Planet's Id          | Planet's Average Moon Gravity
+               --------------------+--------------------------------------------------
+               1                   | 0.0
+               --------------------+--------------------------------------------------
+            */
+        }
+
     }
 }
