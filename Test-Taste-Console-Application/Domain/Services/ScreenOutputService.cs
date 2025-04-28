@@ -258,7 +258,7 @@ namespace Test_Taste_Console_Application.Domain.Services
             /*
                Example Output:
                --------------------+--------------------------------------------------
-               Planet's Id          | Planet's Average Moon Gravity
+               Planet's Id          | Planet's Average Moon Temperature
                --------------------+--------------------------------------------------
                1                   | 0.0
                --------------------+--------------------------------------------------
